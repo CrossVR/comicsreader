@@ -306,8 +306,14 @@ public class FullImageView extends View {
 			}
 			
 			Log.d("ComicsReader", "rect = " + mRect);
-			
-			canvas.drawBitmap(mCurrentBitmap, mRectSrc, mRectDst, null);
+
+
+			//control added about focus in lecture direction
+			if(AlbumParameters.rigtToLeft)
+				canvas.drawBitmap(mCurrentBitmap, (mRect.right -mBitmapWidth), 0, null);
+			else
+				canvas.drawBitmap(mCurrentBitmap, mRectSrc, mRectDst, null);
+
 		} else if (mOffset < 0) {
 			final int prevLeft = Math.max(mRect.right, mPreviousBitmap == null ? mBitmapWidth:mPreviousBitmap.getWidth()) + mOffset;
 			final int prevRight = Math.min(mRect.right, mPreviousBitmap == null ? mBitmapWidth:mPreviousBitmap.getWidth());
