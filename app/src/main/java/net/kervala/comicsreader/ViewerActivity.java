@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Movie;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -631,7 +632,7 @@ public class ViewerActivity extends Activity implements OnTouchListener, FullScr
 		mImageView.setPreviousBitmap(bitmap);
 	}
 	
-	public void onUpdateCurrentPage(Bitmap bitmap) {
+	public void onUpdateCurrentPage(Bitmap bitmap, Movie movie) {
 		mImageView.setOffset(0);
 
 		// automatically rotate the screen to best fit the image
@@ -645,7 +646,7 @@ public class ViewerActivity extends Activity implements OnTouchListener, FullScr
 			}
 		}
 
-		mImageView.setCurrentBitmap(bitmap);
+		mImageView.setCurrentBitmap(bitmap, movie);
 	}
 
 	public void onPageChanged(int current, int previous) {

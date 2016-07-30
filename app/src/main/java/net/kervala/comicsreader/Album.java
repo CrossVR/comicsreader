@@ -31,6 +31,7 @@ import java.util.Locale;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Movie;
 import android.net.Uri;
 import android.util.Log;
 
@@ -743,6 +744,12 @@ public class Album {
 		if (page < 0 || page >= mPages.length) return null;
 
 		return mPages[page].bitmap;
+	}
+
+	public Movie getPageMovie(int page) {
+		if (page < 0 || page >= mPages.length) return null;
+
+		return mPages[page].movie;
 	}
 
 	public int getPageWidth(int page) {

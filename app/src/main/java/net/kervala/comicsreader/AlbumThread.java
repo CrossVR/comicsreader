@@ -25,6 +25,7 @@ import java.lang.ref.WeakReference;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Movie;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -71,7 +72,7 @@ public class AlbumThread extends HandlerThread {
 
 		public void onUpdateNextPage(Bitmap bitmap);
 		public void onUpdatePreviousPage(Bitmap bitmap);
-		public void onUpdateCurrentPage(Bitmap bitmap);
+		public void onUpdateCurrentPage(Bitmap bitmap, Movie movie);
 
 		public void onPageChanged(int current, int next);
 
@@ -541,8 +542,9 @@ public class AlbumThread extends HandlerThread {
 						mHeight = album.getPageHeight(page);
 						
 						final Bitmap bitmap = album.getPageBitmap(page);
+						final Movie movie = album.getPageMovie(page);
 
-						mCallback.get().onUpdateCurrentPage(bitmap);
+						mCallback.get().onUpdateCurrentPage(bitmap, movie);
 					} else {
 //						AlbumPage.sAbortLoading = true;
 
@@ -566,10 +568,11 @@ public class AlbumThread extends HandlerThread {
 				}
 				
 				final Bitmap bitmap = album.getPageBitmap(page);
+				final Movie movie = album.getPageMovie(page);
 				
 				// display the right image if already in memory or a blank page
 				if (page == getCurrentPage()) {
-					mCallback.get().onUpdateCurrentPage(bitmap);
+					mCallback.get().onUpdateCurrentPage(bitmap, movie);
 				} else if (page == getNextPage()) {
 					mCallback.get().onUpdateNextPage(bitmap);
 				} else if (page == getPreviousPage()) {

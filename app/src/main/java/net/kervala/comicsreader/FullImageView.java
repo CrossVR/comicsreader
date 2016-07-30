@@ -26,13 +26,17 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Movie;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.View;
 
 public class FullImageView extends View {
+	private long mMovieStart = 0;
+	private Movie mCurrentMovie = null;
 	private Bitmap mCurrentBitmap = null;
 	private Bitmap mNextBitmap = null;
 	private Bitmap mPreviousBitmap = null;
@@ -40,6 +44,7 @@ public class FullImageView extends View {
 	private int mBitmapHeight;
 	private int mOffset;
 	private boolean mFullScreen;
+	private boolean mAnimated;
 	final private Rect mRect = new Rect();
 	final private Rect mRectSrc = new Rect();
 	final private Rect mRectDst = new Rect();
@@ -129,6 +134,7 @@ public class FullImageView extends View {
 		mPreviousBitmap = null;
 		mNextBitmap = null;
 		mCurrentBitmap = null;
+		mCurrentMovie = null;
 	}
 	
 	public int getBitmapWidth() {
@@ -165,8 +171,10 @@ public class FullImageView extends View {
 	 * 
 	 * @param bitmap
 	 *            The bitmap to set
+	 * @param movie
+	 *            The animation to set, or null for no animation
 	 */
-	public synchronized void setCurrentBitmap(Bitmap bitmap) {
+	public synchronized void setCurrentBitmap(Bitmap bitmap, Movie movie) {
 		if (mCurrentBitmap != bitmap && bitmap != null) {
 			mCurrentBitmap = bitmap;
 			if (mBitmapWidth != bitmap.getWidth() || mBitmapHeight != bitmap.getHeight()) {
@@ -174,6 +182,12 @@ public class FullImageView extends View {
 				mBitmapHeight = bitmap.getHeight();
 				requestLayout();
 			}
+
+			mCurrentMovie = movie;
+			if (mCurrentMovie != movie && movie != null) {
+				mMovieStart = SystemClock.uptimeMillis();
+			}
+
 			invalidate();
 			mOffset = 0;
 		}
@@ -277,6 +291,7 @@ public class FullImageView extends View {
 	@Override
 	protected synchronized void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
+		final long now = SystemClock.uptimeMillis();
 
 		// don't reuse bitmaps if they have been recycled
 		if (mCurrentBitmap != null && mCurrentBitmap.isRecycled()) {
@@ -302,13 +317,31 @@ public class FullImageView extends View {
 
 		int bottom = Math.min(mRect.bottom, mBitmapHeight);
 
+		final boolean isAnimated = mCurrentMovie != null && mCurrentMovie.duration() != 0;
+
+		// set the frame time for the animation
+		if (isAnimated) {
+			final int relTime = (int)((now - mMovieStart) % mCurrentMovie.duration());
+			mCurrentMovie.setTime(relTime);
+		}
+
 		if (mOffset == 0) {
 			mRectSrc.set(mRect.left, mRect.top, currRight, bottom);
 
 			if (AlbumParameters.rightToLeft) {
-				canvas.drawBitmap(mCurrentBitmap, mRect.right - mBitmapWidth, 0, null);
+				if (isAnimated) {
+					canvas.scale((float)mBitmapWidth / mCurrentMovie.width(), (float)mBitmapHeight / mCurrentMovie.height());
+					mCurrentMovie.draw(canvas, mRect.right - mBitmapWidth, 0);
+				} else {
+					canvas.drawBitmap(mCurrentBitmap, mRect.right - mBitmapWidth, 0, null);
+				}
 			} else {
-				canvas.drawBitmap(mCurrentBitmap, mRectSrc, mRectSrc, null);
+				if (isAnimated) {
+					canvas.scale((float)mBitmapWidth / mCurrentMovie.width(), (float)mBitmapHeight / mCurrentMovie.height());
+					mCurrentMovie.draw(canvas, mRect.left, mRect.top);
+				} else {
+					canvas.drawBitmap(mCurrentBitmap, mRectSrc, mRectSrc, null);
+				}
 			}
 		} else if (mOffset < 0) {
 			final int prevLeft = Math.max(mRect.right, mPreviousBitmap == null ? mBitmapWidth:mPreviousBitmap.getWidth()) + mOffset;
@@ -361,5 +394,8 @@ public class FullImageView extends View {
 				canvas.drawRect(mRectDst, mWhitePainter);
 			}
 		}
+
+		if (isAnimated)
+			invalidate();
 	}
 }

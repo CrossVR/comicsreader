@@ -23,11 +23,13 @@ import java.io.File;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Movie;
 import android.util.Log;
 
 public class AlbumPage {
 	public Bitmap bitmap;
 	public Bitmap thumbnail;
+	public Movie movie;
 	public byte [] buffer;
 	public Size bitmapSize;
 	public Size cachedBitmapSize;
@@ -163,6 +165,36 @@ public class AlbumPage {
 		return b;
 	}
 
+	/**
+	 * Load a movie from stream
+	 *
+	 * @return Movie representing this page
+	 */
+	public Movie getPageMovie() {
+		if (buffer == null) return null;
+
+		if (sAbortLoading) {
+			sAbortLoading = false;
+			return null;
+		}
+
+		Movie m;
+
+		try {
+			// get movie from buffer
+			m = Movie.decodeByteArray(buffer, 0, buffer.length);
+
+			if (m == null) {
+				Log.e(ComicsParameters.APP_TAG, "Movie.decodeByteArray returned null for " + mFilename + " size = " + String.valueOf(buffer.length));
+			}
+		} catch (OutOfMemoryError e) {
+			Log.e(ComicsParameters.APP_TAG, "OutOfMemory while decoding movie " + mFilename + ": " + e.toString());
+			return null;
+		}
+
+		return m;
+	}
+
 	public void updateBitmapDstSize(int width, int height) {
 		if (bitmapSize == null) return;
 	
@@ -268,6 +300,8 @@ public class AlbumPage {
 			final Bitmap bitmapRaw = getPageRaw(bitmapSize.dstScale);
 
 			if (bitmapRaw == null) return false;
+
+			movie = getPageMovie();
 
 			if (bitmapSize.srcWidth == bitmapSize.dstWidth * bitmapSize.dstScale && bitmapSize.srcHeight == bitmapSize.dstHeight * bitmapSize.dstScale) {
 				bitmap = bitmapRaw;
