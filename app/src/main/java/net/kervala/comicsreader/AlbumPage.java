@@ -301,7 +301,9 @@ public class AlbumPage {
 
 			if (bitmapRaw == null) return false;
 
-			movie = getPageMovie();
+			if (AlbumParameters.allowAnimation) {
+				movie = getPageMovie();
+			}
 
 			if (bitmapSize.srcWidth == bitmapSize.dstWidth * bitmapSize.dstScale && bitmapSize.srcHeight == bitmapSize.dstHeight * bitmapSize.dstScale) {
 				bitmap = bitmapRaw;

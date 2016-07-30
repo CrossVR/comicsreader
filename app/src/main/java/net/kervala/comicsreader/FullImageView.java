@@ -317,7 +317,7 @@ public class FullImageView extends View {
 
 		int bottom = Math.min(mRect.bottom, mBitmapHeight);
 
-		final boolean isAnimated = mCurrentMovie != null && mCurrentMovie.duration() != 0;
+		final boolean isAnimated = mCurrentMovie != null && mCurrentMovie.duration() != 0 && AlbumParameters.allowAnimation;
 
 		// set the frame time for the animation
 		if (isAnimated) {

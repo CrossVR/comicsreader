@@ -124,4 +124,6 @@
   <string name="unknown">unknown</string>
   <string name="preference_use_minimum_size_label">Use minimum size</string>
   <string name="preference_use_minimum_size_summary">Don\'t resize a page under a specific size for a better readability</string>
+  <string name="preference_allow_animation_label">Play animations</string>
+  <string name="preference_allow_animation_summary">Allows animated images to be played back</string>
 </resources>
