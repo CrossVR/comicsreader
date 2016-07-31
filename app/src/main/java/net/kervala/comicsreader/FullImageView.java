@@ -338,7 +338,7 @@ public class FullImageView extends View {
 			} else {
 				if (isAnimated) {
 					canvas.scale((float)mBitmapWidth / mCurrentMovie.width(), (float)mBitmapHeight / mCurrentMovie.height());
-					mCurrentMovie.draw(canvas, mRect.left, mRect.top);
+					mCurrentMovie.draw(canvas, mRect.left, 0);
 				} else {
 					canvas.drawBitmap(mCurrentBitmap, mRectSrc, mRectSrc, null);
 				}
